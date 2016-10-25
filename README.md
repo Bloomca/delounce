@@ -1,5 +1,7 @@
 # Delounce library
 
+[![Build Status](https://travis-ci.org/Bloomca/delounce.svg?branch=master)](https://travis-ci.org/Bloomca/delounce)
+
 This is a small library with several functions to handle async actions, such as delay with guaranteed minimum time of execution, queue of functions and debounce function aggregator with next invokation
 
 ## Usage example
