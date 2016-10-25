@@ -1,0 +1,48 @@
+{
+  "name": "delounce",
+  "version": "0.0.1",
+  "description": "library with tools for delay and debouncing function invokations",
+  "main": "lib/index.js",
+  "jsnext:main": "src/index.js",
+  "files": [
+    "lib",
+    "src",
+    "README.md",
+    "package.json"
+  ],
+  "scripts": {
+    "compile": "babel --modules umd -d lib/ src/",
+    "prepublish": "npm run compile",
+    "test": "ava",
+    "test:watch": "ava --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bloomca/delounce.git"
+  },
+  "keywords": [
+    "delay",
+    "debounce",
+    "queue"
+  ],
+  "ava": {
+    "require": [
+      "babel-register"
+    ]
+  },
+  "author": "Seva Zaikov <seva.zaikov@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bloomca/delounce/issues"
+  },
+  "homepage": "https://github.com/Bloomca/delounce#readme",
+  "devDependencies": {
+    "ava": "^0.16.0",
+    "babel-cli": "^6.16.0",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-preset-stage-2": "^6.17.0",
+    "babel-register": "^6.16.3",
+    "sinon": "^1.17.6"
+  }
+}
