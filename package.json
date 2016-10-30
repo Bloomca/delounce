@@ -1,6 +1,6 @@
 {
   "name": "delounce",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "library with tools for delay and debouncing function invokations",
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",

@@ -149,3 +149,22 @@ export function debounce({ name, fn, time, reaction }) {
 
   return resolveFunction;
 }
+
+/**
+ * @overview waits certain time, and then, if result
+ * is not ready yet, resolves it
+ * it DOESN'T return resolved value, it is only for
+ * reacting if it takes too much time
+ * @param  {Function} params.fn – function (or Promise, or value)
+ * @param  {Number} time – number of milliseconds to wait
+ * @return {Promise} result – promise after resolving fn or time
+ */
+export function wait({ fn, time }) {
+  return new Promise(resolve => {
+    const timer = setTimeout(resolve, time);
+
+    Promise
+      .resolve(handleValue(fn))
+      .then(() => resolve())
+  });
+}

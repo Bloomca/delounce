@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import sinon from 'sinon';
-import { delay, queue, createDebounceReaction, debounce } from '../src/index';
+import { delay, wait, queue, createDebounceReaction, debounce } from '../src/index';
 
 test('it should return correct result from value', async t => {
   const value = 5;
@@ -25,6 +25,26 @@ test('it should return correct result from asynchronous function', async t => {
   const res = await delay({ fn, time: 500 });
 
   t.is(res, value);
+});
+
+test('it should resolve fast if promise resolves faster than passed time', async t => {
+  const startTime = Date.now();
+  const promise = new Promise(res => {
+    setTimeout(res, 500);
+  });
+  await wait({ fn: promise, time: 1000 });
+  const passedTime = Date.now() - startTime;
+  t.true(passedTime < 600);
+});
+
+test('it should resolve after time if fn takes more than passed time', async t => {
+  const startTime = Date.now();
+  const promise = new Promise(res => {
+    setTimeout(res, 1000);
+  });
+  await wait({ fn: promise, time: 500 });
+  const passedTime = Date.now() - startTime;
+  t.true(passedTime < 600);
 });
 
 test('it should queue fns in correct order', async t => {
