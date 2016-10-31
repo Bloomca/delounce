@@ -11,6 +11,15 @@ npm install --save delounce
 ```
 
 ## Usage example
+Almost all usages make more sense
+
+```javascript
+import { sleep } from 'delounce';
+
+doSome();
+await sleep(2000);
+doStuffAfter2Seconds();
+```
 
 ```javascript
 import { delay } from 'delounce';
@@ -18,30 +27,40 @@ import { delay } from 'delounce';
 // debounce executes your code and return a promise, which will be
 // resolved only after given amount of time (if passed function took less time)
 // you can pass promise, function or plain value
-delay({ time: 500, fn: fetchImages })
- .then((images) => {
-   // at least 500ms passed – if more, it will be resolved immediately
- });
+const images = await delay({ time: 500, fn: fetchImages })
+// at least 500ms passed – if more, it will be resolved immediately
+showImages(images)
+```
 
+```javascript
 import { wait } from 'delounce';
 import { preload } from 'pic-loader';
 
 const imgLinks = ['http://ex.com/first.jpg', 'http://ex.com/second.jpg', 'http://ex.com/third.jpg'];
 // we wait one second to preload images, but if takes too much,
 // we will just start to show them after one second
-wait({ fn: preload(imgLinks), time: 1000 }).then(showImages);
+await wait({ fn: preload(imgLinks), time: 1000 });
+showImages(imgLinks);
+```
 
+```javascript
 import { queue } from 'delounce';
 
 // rows will be fetched one after another
+// we don't use await here, because we show rows right after loading
+// but add all them synchronously
 queue({ name: 'rows', fn: fetchRow(0) }).then(showRow);
 queue({ name: 'rows', fn: fetchRow(1) }).then(showRow);
 queue({ name: 'rows', fn: fetchRow(2) }).then(showRow);
+```
 
+```javascript
 import { createDebounceReaction, debounce } from 'delounce';
 
 // debounce allows you to accumulate values and then process them together
-createDebounceReaction({ name: 'favs', fn: (ids) => makeFavs(ids)});
+// this might be useful if you want to check favourites only of showed
+// entities, but you want to add them independently to the list
+createDebounceReaction({ name: 'favs', fn: (ids) => checkFavs(ids)});
 debounce({ name: 'favs', fn: 'ablwe2' });
 debounce({ name: 'favs', fn: 'qwqrc1' });
 debounce({ name: 'favs', fn: 'pojbm7' });

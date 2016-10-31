@@ -168,3 +168,18 @@ export function wait({ fn, time }) {
       .then(() => resolve())
   });
 }
+
+/**
+ * @overview resolves after given amount of time
+ * @param  {Number} time – ms to wait
+ * @return {Promise} result – promise after resolving on time
+ */
+export function sleep(time) {
+  if (!time) {
+    return Promise.resolve();
+  } else {
+    return new Promise(res => {
+      setTimeout(res, time);
+    });
+  }
+}

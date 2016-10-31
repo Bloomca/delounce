@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import sinon from 'sinon';
-import { delay, wait, queue, createDebounceReaction, debounce } from '../src/index';
+import { delay, wait, sleep, queue, createDebounceReaction, debounce } from '../src/index';
 
 test('it should return correct result from value', async t => {
   const value = 5;
@@ -85,3 +85,12 @@ test.cb('it should invoke reaction with correct arguments', t => {
   debounce({ name: '789', fn: () => 10 });
   debounce({ name: '789', fn: () => 15 });
 });
+
+test('it should sleep given amount of time', async t => {
+  const startTime = Date.now();
+
+  await sleep(1000);
+
+  const difference = Date.now() - startTime;
+  t.true(difference > 980 && difference < 1020);
+})
