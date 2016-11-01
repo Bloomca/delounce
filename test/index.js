@@ -1,7 +1,7 @@
 import test from 'ava';
 
 import sinon from 'sinon';
-import { delay, wait, sleep, queue, createDebounceReaction, debounce } from '../src/index';
+import { delay, wait, sleep, queue, createDebounceReaction, debounce, limit } from '../src/index';
 
 test('it should return correct result from value', async t => {
   const value = 5;
@@ -93,4 +93,34 @@ test('it should sleep given amount of time', async t => {
 
   const difference = Date.now() - startTime;
   t.true(difference > 980 && difference < 1020);
-})
+});
+
+test('it should limit minimum time, if it executes faster', async t => {
+  const fn = new Promise(res => setTimeout(res, 100));
+
+  const startTime = Date.now();
+  await limit({ fn, minTime: 150, maxTime: 300 });
+
+  const difference = Date.now() - startTime;
+  t.true(difference < 160 && difference > 140);
+});
+
+test('it should limit maximum time, if it executes longer', async t => {
+  const fn = new Promise(res => setTimeout(res, 400));
+
+  const startTime = Date.now();
+  await limit({ fn, minTime: 150, maxTime: 300 });
+
+  const difference = Date.now() - startTime;
+  t.true(difference < 310 && difference > 290);
+});
+
+test('it should not limit time, if it executes in range', async t => {
+  const fn = new Promise(res => setTimeout(res, 225));
+
+  const startTime = Date.now();
+  await limit({ fn, minTime: 150, maxTime: 300 });
+
+  const difference = Date.now() - startTime;
+  t.true(difference < 235 && difference > 215);
+});

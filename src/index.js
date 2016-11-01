@@ -183,3 +183,16 @@ export function sleep(time) {
     });
   }
 }
+
+/**
+ * @overview combination of delay and wait – at least minTime,
+ * but no more than maxTime
+ * @param  {Function} params.fn – function (or Promise, or value)
+ * @param  {Number} minTime – minimum number of ms to execute
+ * @param  {Number} maxTime – maximum number of ms to execute
+ * @return {Promise} result – promise after resolving on time
+ */
+export function limit({ fn, minTime, maxTime }) {
+  const promise = delay({ fn, time: minTime });
+  return wait({ fn: promise, time: maxTime });
+}

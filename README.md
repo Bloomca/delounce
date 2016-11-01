@@ -11,7 +11,7 @@ npm install --save delounce
 ```
 
 ## Usage example
-Almost all usages make more sense
+Almost all usages make more sense when using async/await patters, but promises are fine as well.
 
 ```javascript
 import { sleep } from 'delounce';
@@ -53,6 +53,16 @@ queue({ name: 'rows', fn: fetchRow(0) }).then(showRow);
 queue({ name: 'rows', fn: fetchRow(1) }).then(showRow);
 queue({ name: 'rows', fn: fetchRow(2) }).then(showRow);
 ```
+
+```javascript
+import { preload } from 'pic-loader';
+import { limit } from 'delounce';
+
+const imgLinks = ['http://ex.com/first.jpg', 'http://ex.com/second.jpg', 'http://ex.com/third.jpg'];
+// we ensure that they will be loaded enough not to annoy with glitch, but not too long
+limit({ fn: preload(imgLinks), minTime: 200, maxTime: 1000 });
+```
+
 
 ```javascript
 import { createDebounceReaction, debounce } from 'delounce';
