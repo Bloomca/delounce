@@ -48,7 +48,7 @@ function reactToPromise({ resolver, result, startTime, time }) {
  * @param  {Number} params.time – minimum number of ms to pass
  * @return {Promise} result – promise with result
  */
-export function delay({ fn, time }) {
+export function atLeast(time, fn) {
   const startTime = Date.now();
 
   return new Promise((resolve, reject) => {
@@ -60,6 +60,25 @@ export function delay({ fn, time }) {
       .catch(error => {
         reactToPromise({ resolver: reject, result: error, startTime, time });
       });
+  });
+}
+
+/**
+ * @overview waits certain time, and then, if result
+ * is not ready yet, resolves it
+ * it DOESN'T return resolved value, it is only for
+ * reacting if it takes too much time
+ * @param  {Function} params.fn – function (or Promise, or value)
+ * @param  {Number} time – number of milliseconds to wait
+ * @return {Promise} result – promise after resolving fn or time
+ */
+export function atMost(time, fn) {
+  return new Promise(resolve => {
+    const timer = setTimeout(resolve, time);
+
+    Promise
+      .resolve(handleValue(fn))
+      .then(() => resolve())
   });
 }
 
@@ -76,97 +95,20 @@ const queueObject = {};
  * @param  {Function} fn – value to invoke after
  * @return {Promise} result – promise after resolving value
  */
-export function queue({ name = '__default', fn }) {
-    if (!queueObject[name]) {
-      queueObject[name] = Promise.resolve();
-    }
-
-    queueObject[name] = queueObject[name].then(res => {
-      return Promise.resolve(handleValue(fn, res))
-    });
-
-    return queueObject[name];
-}
-
-// this is a dictionary for holding debouncing sequences
-// we hold them by name and keep all info there
-const debounceObject = {};
-
-export function createDebounceReaction({ name, fn, time }) {
-  if (!name || !fn || !time) {
-    throw new Error('Delounce error – for debounce object creating you should provide all data');
+export function queue(name, fn) {
+  if (typeof name !== 'string') {
+    throw new Error('first argument for delounce::queue should be a name for a queue!');
+  }
+  
+  if (!queueObject[name]) {
+    queueObject[name] = Promise.resolve();
   }
 
-  debounceObject[name] = {
-    time,
-    fn,
-    fns: [],
-    promises: []
-  };
-}
-
-export function debounce({ name, fn, time, reaction }) {
-  const o = debounceObject[name];
-
-  if (!o) {
-    throw new Error('Delounce error – there is no debounce object with such name!');
-  }
-
-  // if we have new values, we have to rewrite them
-  if (time) {
-    o.time = time;
-  }
-
-  if (reaction) {
-    o.fn = reaction;
-  }
-
-  // clear old timer
-  if (o.timer) {
-    clearTimeout(o.timer);
-  }
-
-  let resolveFunction;
-
-  new Promise((resolve) => {
-    resolveFunction = resolve;
+  queueObject[name] = queueObject[name].then(res => {
+    return Promise.resolve(handleValue(fn, res))
   });
 
-  o.fns.push(fn);
-  o.promises.push(resolveFunction);
-  const timer = setTimeout(() => {
-    const result = o.fn(o.fns);
-
-    Promise
-      .resolve(result)
-      .then(() => o.promises.forEach(resolve => resolve()));
-
-    o.timer = null;
-    o.fns = [];
-    o.promises = [];
-  }, o.time);
-  o.timer = timer;
-
-  return resolveFunction;
-}
-
-/**
- * @overview waits certain time, and then, if result
- * is not ready yet, resolves it
- * it DOESN'T return resolved value, it is only for
- * reacting if it takes too much time
- * @param  {Function} params.fn – function (or Promise, or value)
- * @param  {Number} time – number of milliseconds to wait
- * @return {Promise} result – promise after resolving fn or time
- */
-export function wait({ fn, time }) {
-  return new Promise(resolve => {
-    const timer = setTimeout(resolve, time);
-
-    Promise
-      .resolve(handleValue(fn))
-      .then(() => resolve())
-  });
+  return queueObject[name];
 }
 
 /**
@@ -192,7 +134,45 @@ export function sleep(time) {
  * @param  {Number} maxTime – maximum number of ms to execute
  * @return {Promise} result – promise after resolving on time
  */
-export function limit({ fn, minTime, maxTime }) {
-  const promise = delay({ fn, time: minTime });
-  return wait({ fn: promise, time: maxTime });
+export function limit({ fn, min, max }) {
+  const promise = atLeast(min, time);
+  return atMost(max, promise);
+}
+
+export function polling(time, fn, ...args) {
+  let stop = false;
+  let cancel;
+  const result = {
+    cancel: () => {
+      if (!cancel) {
+        stop = true;
+      }
+
+      cancel();
+    }
+  };
+  
+  result.promise = new Promise(async (resolve, reject) => {
+    cancel = reject;
+    
+    // if it was canceled even before we reached this point
+    if (stop) {
+      reject();
+    }
+    
+    while (true) {
+      await sleep(time);
+      let result = fn(...args);
+
+      if (result && result.then) {
+        result = await result;
+      }
+
+      if (result) {
+        resolve();
+      }
+    }
+  });
+
+  return result;
 }
