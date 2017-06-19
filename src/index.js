@@ -135,7 +135,7 @@ export function sleep(time) {
  * @return {Promise} result – promise after resolving on time
  */
 export function limit({ fn, min, max }) {
-  const promise = atLeast(min, time);
+  const promise = atLeast(min, fn);
   return atMost(max, promise);
 }
 
