@@ -74,11 +74,11 @@ export function atLeast(time, fn) {
  */
 export function atMost(time, fn) {
   return new Promise(resolve => {
-    const timer = setTimeout(resolve, time);
+    setTimeout(resolve, time);
 
     Promise
       .resolve(handleValue(fn))
-      .then(() => resolve())
+      .then(() => resolve());
   });
 }
 
@@ -105,7 +105,7 @@ export function queue(name, fn) {
   }
 
   queueObject[name] = queueObject[name].then(res => {
-    return Promise.resolve(handleValue(fn, res))
+    return Promise.resolve(handleValue(fn, res));
   });
 
   return queueObject[name];
@@ -160,6 +160,7 @@ export function polling(time, fn, ...args) {
       reject();
     }
     
+    // eslint-disable-next-line no-constant-condition
     while (true) {
       await sleep(time);
       let result = fn(...args);

@@ -1,5 +1,5 @@
 import sinon from 'sinon';
-import { atLeast, atMost, sleep, queue, createDebounceReaction, debounce, limit } from '../src/index';
+import { atLeast, atMost, sleep, queue, limit } from '../src/index';
 
 test('it should return correct result from value', async () => {
   const value = 5;
