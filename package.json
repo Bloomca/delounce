@@ -1,6 +1,6 @@
 {
   "name": "delounce",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
   "description": "library with tools for delay and debouncing function invokations",
   "main": "lib/index.js",
   "jsnext:main": "src/index.js",
@@ -11,9 +11,10 @@
     "package.json"
   ],
   "scripts": {
-    "compile": "babel --modules umd -d lib/ src/",
+    "compile": "npm run test && babel --modules umd -d lib/ src/",
+    "eslint": "eslint src",
     "prepublish": "npm run compile",
-    "test": "jest",
+    "test": "npm run eslint && jest",
     "test:watch": "jest --watch"
   },
   "repository": {
