@@ -1,16 +1,16 @@
 import sinon from 'sinon';
-import { atLeast, atMost, sleep, queue, limit } from '../src/index';
+import { atLeast, atMost, sleep, queue, limit, polling } from '../src/index';
 
 test('it should return correct result from value', async () => {
   const value = 5;
-  const res = await atLeast(500, value);
+  const res = await atLeast(100, value);
 
   expect(value).toBe(res);
 });
 
 test('it should return correct result from synchronous function', async () => {
   const value = 10;
-  const res = await atLeast(500, () => value);
+  const res = await atLeast(100, () => value);
 
   expect(res).toBe(value);
 });
@@ -18,9 +18,9 @@ test('it should return correct result from synchronous function', async () => {
 test('it should return correct result from asynchronous function', async () => {
   const value = 15;
   const fn = new Promise(res => {
-    setTimeout(() => res(value), 1000);
+    setTimeout(() => res(value), 100);
   });
-  const res = await atLeast(500, fn);
+  const res = await atLeast(50, fn);
 
   expect(res).toBe(value);
 });
@@ -28,21 +28,21 @@ test('it should return correct result from asynchronous function', async () => {
 test('it should resolve fast if promise resolves faster than passed time', async () => {
   const startTime = Date.now();
   const promise = new Promise(res => {
-    setTimeout(res, 500);
+    setTimeout(res, 50);
   });
   await atMost(1000, promise);
   const passedTime = Date.now() - startTime;
-  expect(passedTime < 600).toBe(true);
+  expect(passedTime < 60).toBe(true);
 });
 
 test('it should resolve after time if fn takes more than passed time', async () => {
   const startTime = Date.now();
   const promise = new Promise(res => {
-    setTimeout(res, 1000);
+    setTimeout(res, 100);
   });
-  await atMost(500, promise);
+  await atMost(50, promise);
   const passedTime = Date.now() - startTime;
-  expect(passedTime < 600).toBe(true);
+  expect(passedTime < 60).toBe(true);
 });
 
 test('it should queue fns in correct order', async () => {
@@ -58,10 +58,10 @@ test('it should queue fns in correct order', async () => {
 test('it should sleep given amount of time', async () => {
   const startTime = Date.now();
 
-  await sleep(1000);
+  await sleep(100);
 
   const difference = Date.now() - startTime;
-  expect(difference > 980 && difference < 1020).toBe(true);
+  expect(difference > 90 && difference < 110).toBe(true);
 });
 
 test('it should limit minimum time, if it executes faster', async () => {
@@ -92,4 +92,49 @@ test('it should not limit time, if it executes in range', async () => {
 
   const difference = Date.now() - startTime;
   expect(difference < 235 && difference > 215).toBe(true);
+});
+
+test('polling should invoke until fn returns true', async () => {
+  let i = 0;
+  const poll = () => {
+    i++;
+    if (i === 3) {
+      return true;
+    }
+  };
+
+  await polling(50, poll).promise;
+
+  expect(i).toBe(3);
+});
+
+test('polling should not invoke fn in case of cancelling', async () => {
+  let i = 0;
+  const poll = () => {
+    i++;
+    if (i === 3) {
+      return true;
+    }
+  };
+
+  const { cancel } = polling(50, poll);
+  await sleep(80);
+  cancel();
+
+  expect(i).toBe(1);
+});
+
+test('polling should accept async poll function', async () => {
+  let i = 0;
+  const poll = async () => {
+    await sleep(10);
+    i++;
+    if (i === 3) {
+      return true;
+    }
+  };
+
+  await polling(50, poll).promise;
+
+  expect(i).toBe(3);
 });
