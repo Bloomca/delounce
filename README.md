@@ -4,6 +4,8 @@
 [![npm version](https://badge.fury.io/js/delounce.svg)](https://badge.fury.io/js/delounce)
 [![Coverage Status](https://coveralls.io/repos/github/Bloomca/delounce/badge.svg?branch=master)](https://coveralls.io/github/Bloomca/delounce?branch=master)
 [![dependencies Status](https://david-dm.org/bloomca/delounce/status.svg)](https://david-dm.org/bloomca/delounce)
+[![code style: prettier](https://img.shields.io/badge/code_style-prettier-ff69b4.svg?style=flat-square)](https://github.com/prettier/prettier)
+
 
 We all have bunch of "utility" functions in all our projects. We are pretty used to libraries like [lodash](https://lodash.com/), which take this burden off of us (think about functions like [debounce](https://lodash.com/docs/4.17.4#debounce)); but modern JS applications become more and more asynchronous, and this library tries to fill this gap.
 

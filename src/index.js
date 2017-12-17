@@ -7,7 +7,7 @@
 function handleValue(rawValue, fnArg) {
   let value = rawValue;
 
-  if (typeof rawValue === 'function') {
+  if (typeof rawValue === "function") {
     value = rawValue(fnArg);
   }
 
@@ -52,8 +52,7 @@ export function atLeast(time, fn) {
   const startTime = Date.now();
 
   return new Promise((resolve, reject) => {
-    Promise
-      .resolve(handleValue(fn))
+    Promise.resolve(handleValue(fn))
       .then(result => {
         reactToPromise({ resolver: resolve, result, startTime, time });
       })
@@ -76,9 +75,7 @@ export function atMost(time, fn) {
   return new Promise(resolve => {
     setTimeout(resolve, time);
 
-    Promise
-      .resolve(handleValue(fn))
-      .then(() => resolve());
+    Promise.resolve(handleValue(fn)).then(() => resolve());
   });
 }
 
@@ -96,10 +93,12 @@ const queueObject = {};
  * @return {Promise} result – promise after resolving value
  */
 export function queue(name, fn) {
-  if (typeof name !== 'string') {
-    throw new Error('first argument for delounce::queue should be a name for a queue!');
+  if (typeof name !== "string") {
+    throw new Error(
+      "first argument for delounce::queue should be a name for a queue!"
+    );
   }
-  
+
   if (!queueObject[name]) {
     queueObject[name] = Promise.resolve();
   }
@@ -151,15 +150,15 @@ export function polling(time, fn, ...args) {
       cancel();
     }
   };
-  
+
   result.promise = new Promise(async (resolve, reject) => {
     cancel = reject;
-    
+
     // if it was canceled even before we reached this point
     if (stop) {
       reject();
     }
-    
+
     // eslint-disable-next-line no-constant-condition
     while (true) {
       await sleep(time);
